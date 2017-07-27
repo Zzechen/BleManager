@@ -1,6 +1,5 @@
 package com.zzc.blemanager.ui;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
@@ -13,6 +12,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.zzc.blemanager.R;
@@ -25,6 +26,7 @@ import com.zzc.blemanager.databinding.DialogSendBinding;
 import com.zzc.blemanager.model.CharacterModel;
 import com.zzc.blemanager.model.LogModel;
 import com.zzc.blemanager.util.ConvertUtils;
+import com.zzc.lib.ble.AbsBleManager;
 import com.zzc.lib.ble.BleManager;
 import com.zzc.lib.ble.BluetoothObserver;
 
@@ -66,6 +68,7 @@ public class SecondActivity extends AppCompatActivity implements BluetoothObserv
         mLogAdapter = new LogAdapter(mLogList, R.layout.item_log, this);
         mBinding.rvLog.setAdapter(mLogAdapter);
         mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager.setStackFromEnd(true);
         mBinding.rvLog.setLayoutManager(mLayoutManager);
         mBleManager.registerBluetooth(this);
         String connectResult = "正在连接";
@@ -86,7 +89,6 @@ public class SecondActivity extends AppCompatActivity implements BluetoothObserv
                 Snackbar.make(mBinding.rvCharacter, "连接Service？", BaseTransientBottomBar.LENGTH_SHORT).setAction("确认", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mBleManager.disconnect();
                         mBleManager.setServiceUUIDHead(model.getServiceUUID());
                         mBleManager.connect(mAddress);
                     }
@@ -94,24 +96,6 @@ public class SecondActivity extends AppCompatActivity implements BluetoothObserv
                 return true;
             }
         });
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                List<BluetoothGattService> services = mBleManager.getServices();
-                for (int i = 0; i < services.size(); i++) {
-                    BluetoothGattService bluetoothGattService = services.get(i);
-                    String serviceUUID = bluetoothGattService.getUuid().toString();
-                    List<BluetoothGattCharacteristic> characteristics = bluetoothGattService.getCharacteristics();
-                    for (int j = 0; j < characteristics.size(); j++) {
-                        BluetoothGattCharacteristic bluetoothGattCharacteristic = characteristics.get(j);
-                        String uuid = bluetoothGattCharacteristic.getUuid().toString();
-                        CharacterModel model = new CharacterModel(serviceUUID, uuid);
-                        mCharacterList.add(model);
-                        mCharacterAdapter.notifyItemInserted(mCharacterList.size());
-                    }
-                }
-            }
-        }, 3000);
     }
 
     private void send(final CharacterModel model) {
@@ -127,13 +111,31 @@ public class SecondActivity extends AppCompatActivity implements BluetoothObserv
             @Override
             public void onClick(View view) {
                 String content = mDialogSendBinding.edtContent.getText().toString().trim();
+                byte[] bytes = ConvertUtils.hexString2Bytes(content);
                 UUID service = UUID.fromString(model.getServiceUUID());
                 UUID character = UUID.fromString(model.getUuid());
-                mBleManager.sendData(ConvertUtils.hexString2Bytes(content), service, character);
+                mBleManager.sendData(bytes, character, service);
                 mDialog.hide();
             }
         });
         mDialog.show();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_disconnect, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+        switch (itemId) {
+            case R.id.menu_disconn:
+                mBleManager.disconnect();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -152,8 +154,31 @@ public class SecondActivity extends AppCompatActivity implements BluetoothObserv
             @Override
             public void run() {
                 mLogList.add(new LogModel("unknow", action));
+                if (action.equals(AbsBleManager.ACTION_GATT_CONNECTED)) {
+                    mLogList.add(new LogModel("unknow", "连接成功"));
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            List<BluetoothGattService> services = mBleManager.getServices();
+                            for (int i = 0; i < services.size(); i++) {
+                                BluetoothGattService bluetoothGattService = services.get(i);
+                                String serviceUUID = bluetoothGattService.getUuid().toString();
+                                List<BluetoothGattCharacteristic> characteristics = bluetoothGattService.getCharacteristics();
+                                for (int j = 0; j < characteristics.size(); j++) {
+                                    BluetoothGattCharacteristic bluetoothGattCharacteristic = characteristics.get(j);
+                                    String uuid = bluetoothGattCharacteristic.getUuid().toString();
+                                    CharacterModel model = new CharacterModel(serviceUUID, uuid);
+                                    mCharacterList.add(model);
+                                    mCharacterAdapter.notifyItemInserted(mCharacterList.size());
+                                }
+                            }
+                        }
+                    }, 3000);
+                } else if (action.equals(AbsBleManager.ACTION_GATT_DISCONNECTED)) {
+                    mLogList.add(new LogModel("unknow", "连接断开"));
+                }
                 mLogAdapter.notifyDataSetChanged();
-                mLayoutManager.scrollToPosition(mLogAdapter.getItemCount());
+                mLayoutManager.scrollToPosition(mLogAdapter.getItemCount() - 1);
             }
         });
     }
@@ -169,7 +194,7 @@ public class SecondActivity extends AppCompatActivity implements BluetoothObserv
             public void run() {
                 mLogList.add(model);
                 mLogAdapter.notifyDataSetChanged();
-                mLayoutManager.scrollToPosition(mLogAdapter.getItemCount());
+                mLayoutManager.scrollToPosition(mLogAdapter.getItemCount() - 1);
             }
         });
     }

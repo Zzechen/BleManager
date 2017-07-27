@@ -1,5 +1,9 @@
 package com.zzc.blemanager.model;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * Created : zzc
  * Time : 2017/7/27
@@ -8,8 +12,10 @@ package com.zzc.blemanager.model;
  */
 
 public class LogModel {
+    private static final SimpleDateFormat DEFAULT_SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
     private String uuid;
     private String content;
+    private String time;
 
     public LogModel() {
     }
@@ -17,6 +23,7 @@ public class LogModel {
     public LogModel(String uuid, String content) {
         this.uuid = uuid;
         this.content = content;
+        time = DEFAULT_SDF.format(new Date(System.currentTimeMillis()));
     }
 
     public String getUuid() {
@@ -33,5 +40,13 @@ public class LogModel {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 }

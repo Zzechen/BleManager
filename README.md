@@ -1,9 +1,8 @@
 # BleManager
     对Ble的封装，入口为BleManager。  
-    
+    提供Sample，可以连接周围Ble设备，支持发送数据与接收数据
 
 ### 使用方法
-    ```
     AbsBleManager manager = BleManager.getInstance(context);
     if(manager.isVisible()){
         manager.open(activity,new BleOpenListener() {
@@ -32,19 +31,18 @@
     manager.registerBluetooth(this);
     
     //发送数据
-    manager.sendData(new byte[],serviceUUID,characterUUID);
+    manager.sendData(new byte[],characterUUID，serviceUUID);
     
     //断开连接
     manager.disconnect();
-    ```
+    
     需要动态获取权限
-    `<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>`
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     
     静态权限
-    ```
      <uses-permission android:name="android.permission.BLUETOOTH"/>
         <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    ```
+   
 
 ### 截图
 ![](screenshot/conn_log.png)
