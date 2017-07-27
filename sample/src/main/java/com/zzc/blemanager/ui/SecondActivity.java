@@ -160,6 +160,10 @@ public class SecondActivity extends AppCompatActivity implements BluetoothObserv
                         @Override
                         public void run() {
                             List<BluetoothGattService> services = mBleManager.getServices();
+                            if (services.size() > 0) {
+                                mCharacterList.clear();
+                                mCharacterAdapter.notifyDataSetChanged();
+                            }
                             for (int i = 0; i < services.size(); i++) {
                                 BluetoothGattService bluetoothGattService = services.get(i);
                                 String serviceUUID = bluetoothGattService.getUuid().toString();
