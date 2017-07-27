@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">BleManager</string>
+
+    <string name="LinearLayoutManager">android.support.v7.widget.LinearLayoutManager</string>
+</resources>
