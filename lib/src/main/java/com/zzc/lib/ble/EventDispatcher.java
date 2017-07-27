@@ -1,13 +1,11 @@
 package com.zzc.lib.ble;
 
 import android.annotation.TargetApi;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothProfile;
 import android.os.Build;
-import android.os.ParcelUuid;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -23,11 +21,6 @@ import java.util.List;
 public class EventDispatcher implements IEventDispatcher {
     public static String TAG = "IEventDispatcher";
 
-    public static final int STATE_DISCONNECTED = 0;
-    public static final int STATE_CONNECTING = 1;
-    public static final int STATE_CONNECTED = 2;
-
-    private List<BluetoothObserver> mEventHandlers = new ArrayList<>();
     private AbsBleManager mAbsBleManager;
     private EventCallback mEventCallback;
 
@@ -42,13 +35,6 @@ public class EventDispatcher implements IEventDispatcher {
         String intentAction;
         if (newState == BluetoothProfile.STATE_CONNECTED) {
             intentAction = AbsBleManager.ACTION_GATT_CONNECTED;
-            BluetoothDevice device = gatt.getDevice();
-            ParcelUuid[] uuids = device.getUuids();
-            if (uuids != null) {
-                for (int i = 0; i < uuids.length; i++) {
-                    Log.d(TAG, "uuid:" + i + "---" + uuids[i].getUuid().toString());
-                }
-            }
             mEventCallback.onBluetoothConnected();
             Log.d(TAG, "Connected to GATT server.");
             Log.d(TAG, "Attempting to start service discovery:" +

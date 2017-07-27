@@ -1,5 +1,6 @@
 package com.zzc.blemanager.ui;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
@@ -51,6 +52,7 @@ public class SecondActivity extends AppCompatActivity implements BluetoothObserv
     private AlertDialog mDialog;
     private DialogSendBinding mDialogSendBinding;
     private String mAddress;
+    private LinearLayoutManager mLayoutManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,15 +61,14 @@ public class SecondActivity extends AppCompatActivity implements BluetoothObserv
         BluetoothDevice device = getIntent().getParcelableExtra(Constants.INTENT_KEY_PARCEL);
         mBleManager = BleManager.getInstance(this);
         mAddress = device.getAddress();
-        boolean connect = mBleManager.connect(mAddress);
+        mBleManager.connect(mAddress);
         mLogList = new ArrayList<>();
         mLogAdapter = new LogAdapter(mLogList, R.layout.item_log, this);
         mBinding.rvLog.setAdapter(mLogAdapter);
-        LinearLayoutManager layoutManager = (LinearLayoutManager) mBinding.rvLog.getLayoutManager();
-        layoutManager.setSmoothScrollbarEnabled(true);
-        layoutManager.setStackFromEnd(true);
+        mLayoutManager = new LinearLayoutManager(this);
+        mBinding.rvLog.setLayoutManager(mLayoutManager);
         mBleManager.registerBluetooth(this);
-        String connectResult = "连接" + (connect ? "成功" : "失败");
+        String connectResult = "正在连接";
         mLogList.add(new LogModel("unknow", connectResult));
         mLogAdapter.notifyDataSetChanged();
 
@@ -152,7 +153,7 @@ public class SecondActivity extends AppCompatActivity implements BluetoothObserv
             public void run() {
                 mLogList.add(new LogModel("unknow", action));
                 mLogAdapter.notifyDataSetChanged();
-                mBinding.rvLog.scrollToPosition(mLogList.size());
+                mLayoutManager.scrollToPosition(mLogAdapter.getItemCount());
             }
         });
     }
@@ -168,7 +169,7 @@ public class SecondActivity extends AppCompatActivity implements BluetoothObserv
             public void run() {
                 mLogList.add(model);
                 mLogAdapter.notifyDataSetChanged();
-                mBinding.rvLog.scrollToPosition(mLogList.size());
+                mLayoutManager.scrollToPosition(mLogAdapter.getItemCount());
             }
         });
     }

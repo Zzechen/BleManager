@@ -125,6 +125,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void scan() {
+        mDeviceList.clear();
+        mAdapter.notifyDataSetChanged();
         mBinding.pb.setVisibility(View.VISIBLE);
         mBleManager.scan(mLeScanCallback, new Runnable() {
             @Override
