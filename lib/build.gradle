@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion 26
@@ -19,6 +20,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -28,4 +32,13 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:26.+'
     testCompile 'junit:junit:4.12'
+}
+//添加
+publish {
+    userOrg = 'zzcm159'//bintray.com用户名
+    groupId = 'com.zzc'//jcenter上的路径
+    artifactId = 'blemanager'//项目名称
+    publishVersion = '1.0.0'//版本号
+    desc = 'lib for android ble'//描述，不重要
+    website = 'https://github.com/Zzechen/BleManager'//网站，不重要；尽量模拟github上的地址，例如我这样的；当然你有地址最好了
 }
