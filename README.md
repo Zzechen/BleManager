@@ -48,3 +48,13 @@
 ![](screenshot/scan_result.png)
 ![](screenshot/conn_log.png)
 ![](screenshot/send-data.png)
+
+### Download
+    <dependency>
+       <groupId>com.zzc</groupId>  
+       <artifactId>blemanager</artifactId>  
+       <version>1.0.0</version>
+       <type>pom</type>
+     </dependency>  
+or :  
+`compile 'com.zzc:blemanager:1.0.0'`
