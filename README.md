@@ -60,7 +60,7 @@ or :
 `compile 'com.zzc:blemanager:1.0.0'`
 
 ### License
-    Copyright 2015 Zzechen.
+    Copyright 2017 Zzechen.
     
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
